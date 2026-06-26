@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { createServerClient } from '@/lib/supabase';
 import type { Company, Rail } from '@/types/database';
+import TopNav from '@/components/TopNav';
 
 type RailWithCompany = Rail & { companies: Pick<Company, 'id' | 'name'> | null };
 
@@ -27,9 +28,10 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-zinc-50">
+      <TopNav activePath="/" />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-zinc-900">RAIL Tracker</h1>
+          <h1 className="text-2xl font-bold text-zinc-900">All RAILs</h1>
           <p className="text-sm text-zinc-500 mt-1">
             Duncan Aviation — OEM Strategic Initiatives
           </p>

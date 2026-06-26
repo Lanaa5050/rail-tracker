@@ -24,14 +24,25 @@ export default function RailSidebar({ companies, currentRailId }: Props) {
 
   const nav = (
     <nav className="flex flex-col gap-1 py-2">
-      <div className="px-3 pb-2">
-        <Link
-          href="/"
-          className="text-xs text-zinc-400 hover:text-zinc-600 flex items-center gap-1"
-        >
-          ← All RAILs
-        </Link>
+      {/* Global views */}
+      <div className="px-1 pb-1 flex flex-col gap-0.5">
+        {[
+          { href: '/', label: 'All RAILs' },
+          { href: '/my-actions', label: 'My Actions' },
+          { href: '/rollup', label: 'Team Rollup' },
+        ].map(link => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className="block px-3 py-1.5 text-sm rounded-md text-zinc-600 hover:bg-zinc-100 transition-colors"
+            onClick={() => setOpen(false)}
+          >
+            {link.label}
+          </Link>
+        ))}
       </div>
+
+      <div className="mx-3 border-t border-zinc-100 my-1" />
 
       {companies.map(company => (
         <div key={company.id}>
