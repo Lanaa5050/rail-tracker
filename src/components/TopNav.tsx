@@ -12,6 +12,7 @@ const LINKS: NavLink[] = [
   { href: '/my-actions', label: 'My Actions' },
   { href: '/rollup', label: 'Team Rollup' },
   { href: '/calendar', label: 'Calendar' },
+  { href: '/reports', label: 'Reports' },
 ];
 
 export default function TopNav({ activePath }: { activePath: string }) {

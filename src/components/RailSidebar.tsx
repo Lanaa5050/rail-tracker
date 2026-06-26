@@ -33,6 +33,7 @@ export default function RailSidebar({ companies, currentRailId }: Props) {
           { href: '/my-actions', label: 'My Actions' },
           { href: '/rollup', label: 'Team Rollup' },
           { href: '/calendar', label: 'Calendar' },
+          { href: '/reports', label: 'Reports' },
         ].map(link => (
           <Link
             key={link.href}
