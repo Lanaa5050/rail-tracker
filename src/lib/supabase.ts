@@ -1,16 +1,26 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/database';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyClient = ReturnType<typeof createClient<any>>;
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+let _browserClient: AnyClient | null = null;
 
-// Server-side client using the service role key (bypasses RLS)
-export function createServerClient() {
-  return createClient<Database>(
+/** Browser client (anon key). Lazily initialized so it doesn't blow up at build time. */
+export function getSupabaseClient(): AnyClient {
+  if (!_browserClient) {
+    _browserClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    );
+  }
+  return _browserClient;
+}
+
+/** Server-side client (service role key — bypasses RLS). Always fresh per request. */
+export function createServerClient(): AnyClient {
+  return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false } }
+    { auth: { persistSession: false } },
   );
 }
