@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import NotificationBell from './NotificationBell';
 
 interface NavLink {
   href: string;
@@ -34,6 +35,9 @@ export default function TopNav({ activePath }: { activePath: string }) {
           </Link>
         );
       })}
+      <div className="ml-auto">
+        <NotificationBell />
+      </div>
     </nav>
   );
 }
