@@ -7,6 +7,7 @@ interface NavLink {
 
 const LINKS: NavLink[] = [
   { href: '/', label: 'All RAILs' },
+  { href: '/priority-board', label: 'Priority Board' },
   { href: '/my-actions', label: 'My Actions' },
   { href: '/rollup', label: 'Team Rollup' },
 ];

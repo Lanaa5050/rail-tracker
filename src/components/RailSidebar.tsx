@@ -28,6 +28,7 @@ export default function RailSidebar({ companies, currentRailId }: Props) {
       <div className="px-1 pb-1 flex flex-col gap-0.5">
         {[
           { href: '/', label: 'All RAILs' },
+          { href: '/priority-board', label: 'Priority Board' },
           { href: '/my-actions', label: 'My Actions' },
           { href: '/rollup', label: 'Team Rollup' },
         ].map(link => (
