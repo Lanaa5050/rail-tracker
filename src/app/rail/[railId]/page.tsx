@@ -30,7 +30,6 @@ export default async function RailPage({ params }: Props) {
     { data: rail, error: railError },
     { data: items, error: itemsError },
     { data: allColumns },
-    { data: itemCustomValues },
   ] = await Promise.all([
     db.from('rails').select('*, companies(id, name)').eq('id', railId).single(),
     db
@@ -44,14 +43,6 @@ export default async function RailPage({ params }: Props) {
       .select('*')
       .order('display_order', { ascending: true })
       .order('created_at', { ascending: true }),
-    db
-      .from('item_custom_values')
-      .select('*')
-      .in(
-        'rail_item_id',
-        // Provide a placeholder so the query doesn't fail before items loads
-        ['00000000-0000-0000-0000-000000000000']
-      ),
   ]);
 
   if (railError || !rail) notFound();
@@ -96,26 +87,17 @@ export default async function RailPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div className="min-h-full bg-zinc-50">
       <div className="bg-white border-b border-zinc-200">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-0.5">
-                {company?.name ?? 'Unknown Company'}
-              </p>
-              <h1 className="text-xl font-bold text-zinc-900">{rail.initiative_name}</h1>
-            </div>
-            <div className="flex items-center gap-3 mt-1">
-              <a href="/" className="text-sm text-zinc-400 hover:text-zinc-700 whitespace-nowrap">
-                ← All RAILs
-              </a>
-            </div>
-          </div>
+        <div className="px-4 sm:px-6 py-4">
+          <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-0.5">
+            {company?.name ?? 'Unknown Company'}
+          </p>
+          <h1 className="text-xl font-bold text-zinc-900">{rail.initiative_name}</h1>
         </div>
       </div>
 
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="px-4 sm:px-6 py-6">
         {itemsError ? (
           <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
             Failed to load items: {itemsError.message}

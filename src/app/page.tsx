@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic';
 
+import Link from 'next/link';
 import { createServerClient } from '@/lib/supabase';
 import type { Company, Rail } from '@/types/database';
 
@@ -48,7 +49,7 @@ export default async function Home() {
                 <ul className="divide-y divide-zinc-100">
                   {rails.map(rail => (
                     <li key={rail.id}>
-                      <a
+                      <Link
                         href={`/rail/${rail.id}`}
                         className="flex items-center justify-between px-4 py-3 hover:bg-blue-50 transition-colors group"
                       >
@@ -56,7 +57,7 @@ export default async function Home() {
                           {rail.initiative_name}
                         </span>
                         <span className="text-zinc-300 group-hover:text-blue-400 text-lg">›</span>
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>
