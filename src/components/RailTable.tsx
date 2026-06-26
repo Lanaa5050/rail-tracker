@@ -1,18 +1,24 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import type { RailItem, RailItemStatus } from '@/types/database';
+import type { RailItem, RailItemStatus, CustomColumn } from '@/types/database';
 import StatusBadge, { STATUS_OPTIONS } from './StatusBadge';
 import PriorityBadge, { PRIORITY_OPTIONS } from './PriorityBadge';
+import CustomColumnCell from './CustomColumnCell';
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
 type SortKey = keyof Pick<RailItem, 'priority' | 'action' | 'owner' | 'due_date' | 'status' | 'last_update'>;
 type SortDir = 'asc' | 'desc';
 
+// customValuesByItem[itemId][columnId] = value
+type CustomValueMap = Record<string, Record<string, unknown>>;
+
 interface Props {
   railId: string;
   initialItems: RailItem[];
+  customColumns?: CustomColumn[];
+  initialCustomValues?: CustomValueMap;
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -167,13 +173,19 @@ function ColHeader({
 
 // ─── main component ───────────────────────────────────────────────────────────
 
-export default function RailTable({ railId, initialItems }: Props) {
+export default function RailTable({
+  railId,
+  initialItems,
+  customColumns = [],
+  initialCustomValues = {},
+}: Props) {
   const [items, setItems] = useState<RailItem[]>(initialItems);
   const [sortKey, setSortKey] = useState<SortKey>('priority');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [saving, setSaving] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [addingRow, setAddingRow] = useState(false);
+  const [customValues, setCustomValues] = useState<CustomValueMap>(initialCustomValues);
 
   const sorted = sortItems(items, sortKey, sortDir);
 
@@ -243,6 +255,24 @@ export default function RailTable({ railId, initialItems }: Props) {
     }
   }, [railId]);
 
+  const saveCustomValue = useCallback(async (itemId: string, columnId: string, value: unknown) => {
+    // Optimistic
+    setCustomValues(prev => ({
+      ...prev,
+      [itemId]: { ...(prev[itemId] ?? {}), [columnId]: value },
+    }));
+    try {
+      const res = await fetch(`/api/rails/${railId}/items/${itemId}/custom-values`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ custom_column_id: columnId, value }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }, [railId]);
+
   return (
     <div className="flex flex-col gap-3">
       {error && (
@@ -264,6 +294,14 @@ export default function RailTable({ railId, initialItems }: Props) {
                 Notes
               </th>
               <ColHeader label="Last Update" sortKey="last_update" currentKey={sortKey} dir={sortDir} onSort={handleSort} />
+              {customColumns.map(col => (
+                <th
+                  key={col.id}
+                  className="px-3 py-2 text-left text-xs font-semibold text-zinc-500 uppercase tracking-wide whitespace-nowrap"
+                >
+                  {col.label}
+                </th>
+              ))}
               <th className="px-3 py-2 w-8" />
             </tr>
           </thead>
@@ -271,7 +309,7 @@ export default function RailTable({ railId, initialItems }: Props) {
           <tbody className="divide-y divide-zinc-100 bg-white">
             {sorted.length === 0 && (
               <tr>
-                <td colSpan={8} className="text-center py-10 text-zinc-400 italic">
+                <td colSpan={8 + customColumns.length} className="text-center py-10 text-zinc-400 italic">
                   No items yet — click &ldquo;Add Row&rdquo; below.
                 </td>
               </tr>
@@ -357,6 +395,17 @@ export default function RailTable({ railId, initialItems }: Props) {
                   <td className="px-3 py-2 align-top whitespace-nowrap text-xs text-zinc-400">
                     {formatDate(item.last_update)}
                   </td>
+
+                  {/* Custom columns */}
+                  {customColumns.map(col => (
+                    <td key={col.id} className="px-3 py-2 align-top min-w-[120px] max-w-[200px]">
+                      <CustomColumnCell
+                        column={col}
+                        value={customValues[item.id]?.[col.id] ?? null}
+                        onSave={v => saveCustomValue(item.id, col.id, v)}
+                      />
+                    </td>
+                  ))}
 
                   {/* Delete */}
                   <td className="px-3 py-2 align-top">
