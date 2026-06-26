@@ -10,6 +10,7 @@ const LINKS: NavLink[] = [
   { href: '/priority-board', label: 'Priority Board' },
   { href: '/my-actions', label: 'My Actions' },
   { href: '/rollup', label: 'Team Rollup' },
+  { href: '/calendar', label: 'Calendar' },
 ];
 
 export default function TopNav({ activePath }: { activePath: string }) {
