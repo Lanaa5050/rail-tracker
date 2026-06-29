@@ -4,16 +4,17 @@ import Link from 'next/link';
 import { createServerClient } from '@/lib/supabase';
 import type { Company, Rail } from '@/types/database';
 import TopNav from '@/components/TopNav';
+import HomeAdminPanel from './HomeAdminPanel';
 
 type RailWithCompany = Rail & { companies: Pick<Company, 'id' | 'name'> | null };
 
 export default async function Home() {
   const db = createServerClient();
 
-  const { data: rails } = await db
-    .from('rails')
-    .select('*, companies(id, name)')
-    .order('created_at', { ascending: true });
+  const [{ data: rails }, { data: companiesRaw }] = await Promise.all([
+    db.from('rails').select('*, companies(id, name)').order('created_at', { ascending: true }),
+    db.from('companies').select('id, name').order('name'),
+  ]);
 
   // Group by company
   const byCompany = new Map<string, { name: string; rails: RailWithCompany[] }>();
@@ -26,15 +27,20 @@ export default async function Home() {
     byCompany.get(company.id)!.rails.push(rail);
   }
 
+  const companies = (companiesRaw ?? []) as Pick<Company, 'id' | 'name'>[];
+
   return (
     <div className="min-h-screen bg-zinc-50">
       <TopNav activePath="/" />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-zinc-900">All RAILs</h1>
-          <p className="text-sm text-zinc-500 mt-1">
-            Duncan Aviation — OEM Strategic Initiatives
-          </p>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-zinc-900">All RAILs</h1>
+            <p className="text-sm text-zinc-500 mt-1">
+              Duncan Aviation — OEM Strategic Initiatives
+            </p>
+          </div>
+          <HomeAdminPanel companies={companies} />
         </div>
 
         {byCompany.size === 0 ? (
