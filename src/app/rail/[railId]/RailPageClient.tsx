@@ -67,16 +67,16 @@ export default function RailPageClient({
   };
 
   return (
-    <div className="min-h-full bg-zinc-50">
+    <div className="min-h-full bg-zinc-50 overflow-x-hidden">
       {/* Header — two rows on mobile, one row on desktop */}
-      <div className="bg-white border-b border-zinc-200">
+      <div className="bg-white border-b border-zinc-200 w-full">
         {/* Row 1: company + initiative title, full width */}
-        <div className="px-3 sm:px-6 pt-3 pb-1">
+        <div className="px-3 sm:px-6 pt-3 pb-1 min-w-0">
           <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-0.5 truncate">
             {companyName}
           </p>
-          <h1 className="text-lg font-bold text-zinc-900 flex items-center gap-2 leading-tight">
-            <span className="truncate">{initiativeName}</span>
+          <h1 className="text-lg font-bold text-zinc-900 flex items-center gap-2 leading-tight min-w-0">
+            <span className="truncate min-w-0">{initiativeName}</span>
             {isClosed && (
               <span className="text-xs font-semibold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full shrink-0">Archived</span>
             )}
