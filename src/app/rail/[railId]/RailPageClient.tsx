@@ -67,11 +67,11 @@ export default function RailPageClient({
   };
 
   return (
-    <div className="min-h-full bg-zinc-50 overflow-x-hidden">
-      {/* Header — two rows on mobile, one row on desktop */}
-      <div className="bg-white border-b border-zinc-200 w-full">
+    <div className="min-h-full bg-zinc-50">
+      {/* Header — sticky so it stays put while the table scrolls horizontally */}
+      <div className="sticky top-0 z-10 bg-white border-b border-zinc-200 w-full">
         {/* Row 1: company + initiative title, full width */}
-        <div className="px-3 sm:px-6 pt-3 pb-1 min-w-0">
+        <div className="px-3 sm:px-6 pt-3 pb-1 min-w-0 overflow-hidden">
           <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-0.5 truncate">
             {companyName}
           </p>
