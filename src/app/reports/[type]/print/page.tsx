@@ -5,7 +5,7 @@ import { getReportData, REPORT_LABELS, REPORT_DESCRIPTIONS, type ReportType, typ
 import PrintView from './PrintView';
 
 const VALID_TYPES: ReportType[] = [
-  'overdue-all', 'overdue-by-company', 'owner-workload', 'initiative-status', 'executive-summary',
+  'overdue-all', 'overdue-by-company', 'owner-workload', 'initiative-status', 'company-initiatives', 'executive-summary',
 ];
 
 type Params = { params: Promise<{ type: string }> };

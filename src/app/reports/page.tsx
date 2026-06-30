@@ -9,6 +9,7 @@ const REPORT_TYPES: ReportType[] = [
   'overdue-by-company',
   'owner-workload',
   'initiative-status',
+  'company-initiatives',
   'executive-summary',
 ];
 
@@ -17,6 +18,7 @@ const REPORT_ICONS: Record<ReportType, string> = {
   'overdue-by-company': '🏢',
   'owner-workload': '👤',
   'initiative-status': '📋',
+  'company-initiatives': '🗂️',
   'executive-summary': '📊',
 };
 

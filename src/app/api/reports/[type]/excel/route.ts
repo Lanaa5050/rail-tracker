@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import ExcelJS from 'exceljs';
-import { getReportData, REPORT_LABELS, type ReportType, type ReportItem } from '@/lib/reports';
+import { getReportData, REPORT_LABELS, type ReportType, type ReportItem, type CompanyInitiativeGroup } from '@/lib/reports';
 
 type Params = { params: Promise<{ type: string }> };
 
 const VALID_TYPES: ReportType[] = [
-  'overdue-all', 'overdue-by-company', 'owner-workload', 'initiative-status', 'executive-summary',
+  'overdue-all', 'overdue-by-company', 'owner-workload', 'initiative-status', 'company-initiatives', 'executive-summary',
 ];
 
 function fmtDate(iso: string | null) {
@@ -125,6 +125,43 @@ export async function GET(_req: NextRequest, { params }: Params) {
         }
         itemRows(ws, items);
       }
+      break;
+    }
+    case 'company-initiatives': {
+      const groups = data as CompanyInitiativeGroup[];
+      const ws = wb.addWorksheet('Company Initiatives');
+      ws.columns = [
+        { header: 'Company', key: 'company', width: 24 },
+        { header: 'Initiative', key: 'rail', width: 36 },
+        { header: 'Status', key: 'status', width: 12 },
+        { header: 'Total Items', key: 'total', width: 12 },
+        { header: 'Open', key: 'open', width: 10 },
+        { header: 'Closed Items', key: 'closedItems', width: 12 },
+        { header: 'Overdue', key: 'overdue', width: 10 },
+        { header: 'Due This Week', key: 'dueThisWeek', width: 14 },
+      ];
+      styleHeader(ws, ws.getRow(1));
+      for (const { company, rails } of groups) {
+        for (const rail of rails) {
+          const row = ws.addRow([
+            company,
+            rail.rail_name,
+            rail.closed ? 'Archived' : 'Active',
+            rail.total,
+            rail.open,
+            rail.closedItems,
+            rail.overdue,
+            rail.dueThisWeek,
+          ]);
+          if (rail.closed) {
+            row.eachCell(cell => {
+              cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF9C3' } };
+            });
+          }
+        }
+      }
+      ws.addRow([]);
+      ws.addRow([`Generated ${generatedAt} — RAIL Tracker`]);
       break;
     }
     case 'executive-summary': {

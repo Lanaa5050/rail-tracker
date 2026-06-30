@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import type { ReportType, ReportItem } from '@/lib/reports';
+import type { ReportType, ReportItem, CompanyInitiativeGroup } from '@/lib/reports';
 
 interface Props {
   type: ReportType;
@@ -183,6 +183,39 @@ export default function PrintView({ type, label, description, data, generatedAt 
               </div>
             );
           });
+        })()}
+
+        {type === 'company-initiatives' && (() => {
+          const groups = data as CompanyInitiativeGroup[];
+          return groups.map(({ company, rails }) => (
+            <div key={company} className="mb-10 break-inside-avoid-page">
+              <h2 className="text-base font-bold text-zinc-800 mb-2 border-b border-zinc-200 pb-1">{company}</h2>
+              <table className="w-full text-xs border-collapse mb-2">
+                <thead>
+                  <tr className="bg-blue-800 text-white print:bg-blue-800">
+                    {['Initiative', 'Total', 'Open', 'Closed', 'Overdue', 'Due This Week'].map(h => (
+                      <th key={h} className="px-2 py-1.5 text-left font-semibold">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rails.map((rail, i) => (
+                    <tr key={rail.rail_name} className={i % 2 === 0 ? 'bg-white' : 'bg-zinc-50'}>
+                      <td className="px-2 py-1.5 border-b border-zinc-100 font-medium flex items-center gap-1.5">
+                        {rail.rail_name}
+                        {rail.closed && <span className="text-[10px] font-semibold bg-amber-100 text-amber-700 px-1 rounded">Archived</span>}
+                      </td>
+                      <td className="px-2 py-1.5 border-b border-zinc-100">{rail.total}</td>
+                      <td className="px-2 py-1.5 border-b border-zinc-100">{rail.open}</td>
+                      <td className="px-2 py-1.5 border-b border-zinc-100">{rail.closedItems}</td>
+                      <td className={`px-2 py-1.5 border-b border-zinc-100 ${rail.overdue > 0 ? 'text-red-700 font-bold' : ''}`}>{rail.overdue || '—'}</td>
+                      <td className={`px-2 py-1.5 border-b border-zinc-100 ${rail.dueThisWeek > 0 ? 'text-orange-700 font-semibold' : ''}`}>{rail.dueThisWeek || '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ));
         })()}
 
         {type === 'executive-summary' && (() => {

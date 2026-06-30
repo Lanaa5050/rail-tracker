@@ -13,6 +13,7 @@ export type ReportType =
   | 'overdue-by-company'
   | 'owner-workload'
   | 'initiative-status'
+  | 'company-initiatives'
   | 'executive-summary';
 
 export const REPORT_LABELS: Record<ReportType, string> = {
@@ -20,6 +21,7 @@ export const REPORT_LABELS: Record<ReportType, string> = {
   'overdue-by-company': 'Overdue — By Company',
   'owner-workload': 'Owner Workload',
   'initiative-status': 'Initiative Status',
+  'company-initiatives': 'Company Initiative Summary',
   'executive-summary': 'Executive Summary',
 };
 
@@ -28,7 +30,23 @@ export const REPORT_DESCRIPTIONS: Record<ReportType, string> = {
   'overdue-by-company': 'Past-due open items grouped by company and initiative.',
   'owner-workload': 'Open item counts by owner — overdue, due-this-week, total, and by priority.',
   'initiative-status': 'All items per initiative with status breakdown.',
+  'company-initiatives': 'Each company with all its initiatives and item counts listed beneath it.',
   'executive-summary': 'High-level counts and overdue summary across all companies.',
+};
+
+export type CompanyInitiativeRow = {
+  rail_name: string;
+  closed: boolean;
+  total: number;
+  open: number;
+  closedItems: number;
+  overdue: number;
+  dueThisWeek: number;
+};
+
+export type CompanyInitiativeGroup = {
+  company: string;
+  rails: CompanyInitiativeRow[];
 };
 
 type RailMeta = { name: string; company: string; company_id: string; closed: boolean };
@@ -78,7 +96,6 @@ function isDueThisWeek(item: ReportItem) {
 
 export async function getReportData(type: ReportType) {
   const { enriched, allEnriched, railMap } = await fetchAll();
-  const today = new Date(new Date().toDateString());
 
   switch (type) {
     case 'overdue-all': {
@@ -121,6 +138,36 @@ export async function getReportData(type: ReportType) {
         byRail.get(item.rail_id)!.items.push(item);
       }
       return byRail;
+    }
+    case 'company-initiatives': {
+      // Group all rails (active + archived) by company, summarise each rail
+      const byRail = new Map<string, { railId: string; items: ReportItem[] }>();
+      for (const item of allEnriched) {
+        if (!byRail.has(item.rail_id)) byRail.set(item.rail_id, { railId: item.rail_id, items: [] });
+        byRail.get(item.rail_id)!.items.push(item);
+      }
+
+      const byCompany = new Map<string, CompanyInitiativeGroup>();
+      for (const [railId, { items }] of byRail) {
+        const meta = railMap.get(railId);
+        if (!meta) continue;
+        if (!byCompany.has(meta.company)) byCompany.set(meta.company, { company: meta.company, rails: [] });
+        const openItems = items.filter(i => i.status !== 'Closed');
+        byCompany.get(meta.company)!.rails.push({
+          rail_name: meta.name,
+          closed: meta.closed,
+          total: items.length,
+          open: openItems.length,
+          closedItems: items.length - openItems.length,
+          overdue: items.filter(isOverdue).length,
+          dueThisWeek: items.filter(isDueThisWeek).length,
+        });
+      }
+
+      // Sort companies alphabetically, rails within each company alphabetically
+      return Array.from(byCompany.values())
+        .sort((a, b) => a.company.localeCompare(b.company))
+        .map(g => ({ ...g, rails: g.rails.sort((a, b) => a.rail_name.localeCompare(b.rail_name)) }));
     }
     case 'executive-summary': {
       const companies = [...new Set(enriched.map(i => i.company_name))].sort();
