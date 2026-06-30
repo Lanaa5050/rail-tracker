@@ -49,6 +49,7 @@ export default async function RailPage({ params }: Props) {
 
   const company = Array.isArray(rail.companies) ? rail.companies[0] : rail.companies;
   const companyId: string = company?.id ?? '';
+  const closedAt: string | null = (rail as { closed_at?: string | null }).closed_at ?? null;
 
   // Fetch item_custom_values properly now that we have item IDs
   const itemIds = (items ?? []).map((i: { id: string }) => i.id);
@@ -89,11 +90,18 @@ export default async function RailPage({ params }: Props) {
   return (
     <div className="min-h-full bg-zinc-50">
       <div className="bg-white border-b border-zinc-200">
-        <div className="px-4 sm:px-6 py-4">
-          <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-0.5">
-            {company?.name ?? 'Unknown Company'}
-          </p>
-          <h1 className="text-xl font-bold text-zinc-900">{rail.initiative_name}</h1>
+        <div className="px-4 sm:px-6 py-4 flex items-start justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-0.5">
+              {company?.name ?? 'Unknown Company'}
+            </p>
+            <h1 className="text-xl font-bold text-zinc-900 flex items-center gap-2">
+              {rail.initiative_name}
+              {closedAt && (
+                <span className="text-xs font-semibold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Archived</span>
+              )}
+            </h1>
+          </div>
         </div>
       </div>
 
@@ -111,6 +119,7 @@ export default async function RailPage({ params }: Props) {
             initialHiddenColumnIds={[...hiddenColumnIds]}
             visibleColumns={visibleColumns}
             initialCustomValues={customValuesByItem}
+            initialClosedAt={closedAt}
           />
         )}
       </div>
