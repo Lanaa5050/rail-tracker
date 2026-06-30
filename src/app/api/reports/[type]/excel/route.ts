@@ -112,12 +112,17 @@ export async function GET(_req: NextRequest, { params }: Params) {
       break;
     }
     case 'initiative-status': {
-      const byRail = data as Map<string, { rail_name: string; company_name: string; items: ReportItem[] }>;
-      for (const [, { rail_name, company_name, items }] of byRail) {
-        const sheetName = `${company_name} — ${rail_name}`.slice(0, 31);
+      const byRail = data as Map<string, { rail_name: string; company_name: string; closed: boolean; items: ReportItem[] }>;
+      for (const [, { rail_name, company_name, closed, items }] of byRail) {
+        const sheetName = `${closed ? '[A] ' : ''}${company_name} — ${rail_name}`.slice(0, 31);
         const ws = wb.addWorksheet(sheetName);
         ws.columns = ITEM_COLS.map((h, i) => ({ header: h, key: h, width: ITEM_WIDTHS[i] }));
         styleHeader(ws, ws.getRow(1));
+        if (closed) {
+          ws.getRow(1).eachCell(cell => {
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF92400E' } };
+          });
+        }
         itemRows(ws, items);
       }
       break;

@@ -166,14 +166,17 @@ export default function PrintView({ type, label, description, data, generatedAt 
         })()}
 
         {type === 'initiative-status' && (() => {
-          const byRail = data as Map<string, { rail_name: string; company_name: string; items: ReportItem[] }>;
-          return Array.from(byRail.values()).map(({ rail_name, company_name, items }) => {
+          const byRail = data as Map<string, { rail_name: string; company_name: string; closed: boolean; items: ReportItem[] }>;
+          return Array.from(byRail.values()).map(({ rail_name, company_name, closed, items }) => {
             const open = items.filter(i => i.status !== 'Closed').length;
             const overdue = items.filter(isOverdue).length;
             return (
-              <div key={rail_name + company_name} className="mb-10 break-inside-avoid-page">
+              <div key={rail_name + company_name} className={`mb-10 break-inside-avoid-page ${closed ? 'opacity-60' : ''}`}>
                 <div className="mb-2">
-                  <h2 className="text-base font-bold text-zinc-800">{rail_name}</h2>
+                  <h2 className="text-base font-bold text-zinc-800 flex items-center gap-2">
+                    {rail_name}
+                    {closed && <span className="text-xs font-semibold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">Archived</span>}
+                  </h2>
                   <p className="text-xs text-zinc-500">{company_name} · {items.length} total · {open} open · {overdue > 0 ? <span className="text-red-600 font-semibold">{overdue} overdue</span> : '0 overdue'}</p>
                 </div>
                 <ItemTable items={items} showRail={false} />

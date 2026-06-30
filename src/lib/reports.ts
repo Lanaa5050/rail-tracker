@@ -31,6 +31,8 @@ export const REPORT_DESCRIPTIONS: Record<ReportType, string> = {
   'executive-summary': 'High-level counts and overdue summary across all companies.',
 };
 
+type RailMeta = { name: string; company: string; company_id: string; closed: boolean };
+
 async function fetchAll() {
   const db = createServerClient();
   const [{ data: items }, { data: rails }] = await Promise.all([
@@ -38,23 +40,27 @@ async function fetchAll() {
     db.from('rails').select('*, companies(id, name)'),
   ]);
 
-  const railMap = new Map<string, { name: string; company: string; company_id: string }>();
-  for (const rail of (rails ?? []) as RailWithCompany[]) {
+  const railMap = new Map<string, RailMeta>();
+  for (const rail of (rails ?? []) as (RailWithCompany & { closed_at?: string | null })[]) {
     const company = Array.isArray(rail.companies) ? rail.companies[0] : rail.companies;
     railMap.set(rail.id, {
       name: rail.initiative_name,
       company: company?.name ?? '',
       company_id: company?.id ?? '',
+      closed: !!rail.closed_at,
     });
   }
 
-  const enriched: ReportItem[] = ((items ?? []) as RailItem[]).map(i => ({
+  const allEnriched: ReportItem[] = ((items ?? []) as RailItem[]).map(i => ({
     ...i,
     rail_name: railMap.get(i.rail_id)?.name ?? '',
     company_name: railMap.get(i.rail_id)?.company ?? '',
   }));
 
-  return { enriched, railMap };
+  // Active-only: excludes items belonging to archived RAILs
+  const enriched = allEnriched.filter(i => !railMap.get(i.rail_id)?.closed);
+
+  return { enriched, allEnriched, railMap };
 }
 
 function isOverdue(item: ReportItem) {
@@ -71,7 +77,7 @@ function isDueThisWeek(item: ReportItem) {
 }
 
 export async function getReportData(type: ReportType) {
-  const { enriched } = await fetchAll();
+  const { enriched, allEnriched, railMap } = await fetchAll();
   const today = new Date(new Date().toDateString());
 
   switch (type) {
@@ -104,9 +110,14 @@ export async function getReportData(type: ReportType) {
       return Array.from(ownerMap.values()).sort((a, b) => b.overdue - a.overdue || b.total - a.total);
     }
     case 'initiative-status': {
-      const byRail = new Map<string, { rail_name: string; company_name: string; items: ReportItem[] }>();
-      for (const item of enriched) {
-        if (!byRail.has(item.rail_id)) byRail.set(item.rail_id, { rail_name: item.rail_name, company_name: item.company_name, items: [] });
+      const byRail = new Map<string, { rail_name: string; company_name: string; closed: boolean; items: ReportItem[] }>();
+      for (const item of allEnriched) {
+        if (!byRail.has(item.rail_id)) byRail.set(item.rail_id, {
+          rail_name: item.rail_name,
+          company_name: item.company_name,
+          closed: railMap.get(item.rail_id)?.closed ?? false,
+          items: [],
+        });
         byRail.get(item.rail_id)!.items.push(item);
       }
       return byRail;
