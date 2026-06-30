@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
+import { useSidebar } from '@/context/SidebarContext';
 
 export interface SidebarRail {
   id: string;
@@ -19,12 +19,32 @@ interface Props {
   currentRailId: string;
 }
 
+export function MenuButton() {
+  const { open, setOpen } = useSidebar();
+  return (
+    <button
+      onClick={() => setOpen(!open)}
+      className="lg:hidden p-1.5 rounded-md text-zinc-500 bg-white border border-zinc-200 shadow-sm"
+      aria-label="Toggle navigation"
+    >
+      {open ? (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      ) : (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 export default function RailSidebar({ companies, currentRailId }: Props) {
-  const [open, setOpen] = useState(false);
+  const { open, setOpen } = useSidebar();
 
   const nav = (
     <nav className="flex flex-col gap-1 py-2">
-      {/* Global views */}
       <div className="px-1 pb-1 flex flex-col gap-0.5">
         {[
           { href: '/', label: 'All RAILs' },
@@ -77,25 +97,6 @@ export default function RailSidebar({ companies, currentRailId }: Props) {
 
   return (
     <>
-      {/* Mobile hamburger — compact, top-left, no label */}
-      <div className="lg:hidden absolute top-2 left-2 z-30">
-        <button
-          onClick={() => setOpen(o => !o)}
-          className="p-1.5 rounded-md text-zinc-500 bg-white border border-zinc-200 shadow-sm"
-          aria-label="Toggle navigation"
-        >
-          {open ? (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          )}
-        </button>
-      </div>
-
       {/* Mobile drawer overlay */}
       {open && (
         <div
