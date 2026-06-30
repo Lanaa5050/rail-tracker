@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
 import { NextRequest, NextResponse } from 'next/server';
 import ExcelJS from 'exceljs';
 import { getReportData, REPORT_LABELS, type ReportType, type ReportItem, type CompanyInitiativeGroup } from '@/lib/reports';
