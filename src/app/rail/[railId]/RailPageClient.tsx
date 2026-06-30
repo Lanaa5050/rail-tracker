@@ -15,18 +15,16 @@ interface Props {
   initialItems: RailItem[];
   allColumns: CustomColumn[];
   initialHiddenColumnIds: string[];
-  visibleColumns: CustomColumn[];
   initialCustomValues: CustomValueMap;
   initialClosedAt: string | null;
 }
 
-export default function RailTableWrapper({
+export default function RailPageClient({
   railId,
   companyId,
   initialItems,
   allColumns,
   initialHiddenColumnIds,
-  visibleColumns: initialVisibleColumns,
   initialCustomValues,
   initialClosedAt,
 }: Props) {
@@ -44,7 +42,6 @@ export default function RailTableWrapper({
     if (!confirm(isClosed
       ? 'Reopen this RAIL? It will appear as active again.'
       : 'Close this RAIL? It will be archived but all data will be preserved.')) return;
-
     setToggling(true);
     try {
       const res = await fetch(`/api/rails/${railId}`, {
@@ -63,26 +60,21 @@ export default function RailTableWrapper({
     }
   };
 
-  const handleColumnAdded = (col: CustomColumn) => setAllCols(prev => [...prev, col]);
-  const handleVisibilityChanged = (columnId: string, hidden: boolean) => {
-    setHiddenIds(prev => {
-      const next = new Set(prev);
-      if (hidden) next.add(columnId); else next.delete(columnId);
-      return next;
-    });
-  };
-
   return (
-    <div className="flex flex-col gap-4">
+    <>
+      {/* Header buttons — rendered into the header slot via props pattern */}
+      <div id="rail-header-buttons" className="contents" />
+
       {/* Closed banner */}
       {isClosed && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-center gap-3">
+        <div className="mx-4 sm:mx-6 mt-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-center gap-3">
           <span className="text-amber-600 font-semibold text-sm">Archived RAIL</span>
           <span className="text-amber-500 text-sm">This RAIL is closed. All data is preserved in read-only state.</span>
         </div>
       )}
 
-      <div className="flex justify-end gap-2">
+      {/* Admin + Close buttons bar */}
+      <div className="px-4 sm:px-6 pt-4 flex justify-end gap-2">
         {isAdmin && (
           <button
             onClick={toggleClosed}
@@ -101,17 +93,24 @@ export default function RailTableWrapper({
           companyId={companyId}
           allColumns={allCols}
           hiddenColumnIds={hiddenIds}
-          onColumnAdded={handleColumnAdded}
-          onVisibilityChanged={handleVisibilityChanged}
+          onColumnAdded={col => setAllCols(prev => [...prev, col])}
+          onVisibilityChanged={(columnId, hidden) => setHiddenIds(prev => {
+            const next = new Set(prev);
+            if (hidden) next.add(columnId); else next.delete(columnId);
+            return next;
+          })}
         />
       </div>
 
-      <RailTable
-        railId={railId}
-        initialItems={initialItems}
-        customColumns={visibleColumns}
-        initialCustomValues={initialCustomValues}
-      />
-    </div>
+      {/* Table */}
+      <div className="px-4 sm:px-6 py-4">
+        <RailTable
+          railId={railId}
+          initialItems={initialItems}
+          customColumns={visibleColumns}
+          initialCustomValues={initialCustomValues}
+        />
+      </div>
+    </>
   );
 }
