@@ -90,11 +90,17 @@ export default function RailList({ companies }: { companies: CompanyEntry[] }) {
             const archivedCount = companies.find(c => c.id === companyId)?.rails.filter(r => r.closed_at).length ?? 0;
             return (
               <div key={companyId} className="bg-white rounded-lg border border-zinc-200 overflow-hidden">
-                <div className="px-4 py-3 bg-zinc-50 border-b border-zinc-200 flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-zinc-700">{name}</h2>
-                  {archivedCount > 0 && !showArchived && (
-                    <span className="text-xs text-zinc-400">{archivedCount} archived</span>
-                  )}
+                <div className="px-4 pt-2 pb-0 bg-zinc-50 border-b border-zinc-200">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-0.5">Company</p>
+                  <div className="flex items-center justify-between pb-2">
+                    <h2 className="text-sm font-semibold text-zinc-700">{name}</h2>
+                    {archivedCount > 0 && !showArchived && (
+                      <span className="text-xs text-zinc-400">{archivedCount} archived</span>
+                    )}
+                  </div>
+                  <div className="px-0 pb-1">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Initiative</p>
+                  </div>
                 </div>
                 <ul className="divide-y divide-zinc-100">
                   {rails.map(rail => (
