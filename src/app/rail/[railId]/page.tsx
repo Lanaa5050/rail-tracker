@@ -90,7 +90,7 @@ export default async function RailPage({ params }: Props) {
   return (
     <div className="min-h-full bg-zinc-50">
       <div className="bg-white border-b border-zinc-200">
-        <div className="px-4 sm:px-6 py-4 flex items-start justify-between">
+        <div className="pl-10 pr-4 sm:pl-6 sm:pr-6 py-4 flex items-start justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-0.5">
               {company?.name ?? 'Unknown Company'}

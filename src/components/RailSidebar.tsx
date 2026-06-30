@@ -78,11 +78,11 @@ export default function RailSidebar({ companies, currentRailId }: Props) {
 
   return (
     <>
-      {/* Mobile top bar */}
-      <div className="lg:hidden flex items-center gap-3 bg-white border-b border-zinc-200 px-4 py-2.5">
+      {/* Mobile hamburger — compact, top-left, no label */}
+      <div className="lg:hidden absolute top-2 left-2 z-30">
         <button
           onClick={() => setOpen(o => !o)}
-          className="p-1.5 rounded-md text-zinc-500 hover:bg-zinc-100"
+          className="p-1.5 rounded-md text-zinc-500 bg-white border border-zinc-200 shadow-sm"
           aria-label="Toggle navigation"
         >
           {open ? (
@@ -95,7 +95,6 @@ export default function RailSidebar({ companies, currentRailId }: Props) {
             </svg>
           )}
         </button>
-        <span className="text-sm font-semibold text-zinc-700">RAIL Tracker</span>
       </div>
 
       {/* Mobile drawer overlay */}
