@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import NotificationBell from './NotificationBell';
 
 export interface SidebarRail {
   id: string;
@@ -121,11 +120,10 @@ export default function RailSidebar({ companies, currentRailId }: Props) {
 
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-56 shrink-0 border-r border-zinc-200 bg-white overflow-y-auto">
-        <div className="px-4 py-3 border-b border-zinc-200 flex items-center justify-between">
+        <div className="px-4 py-3 border-b border-zinc-200">
           <Link href="/" className="text-sm font-bold text-zinc-800 hover:text-blue-700">
             RAIL Tracker
           </Link>
-          <NotificationBell />
         </div>
         {nav}
       </aside>
