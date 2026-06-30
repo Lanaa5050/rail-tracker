@@ -116,18 +116,40 @@ export async function GET(_req: NextRequest, { params }: Params) {
     }
     case 'initiative-status': {
       const byRail = data as Map<string, { rail_name: string; company_name: string; closed: boolean; items: ReportItem[] }>;
+      const ws = wb.addWorksheet('Initiative Status');
+      const cols = ['Company', 'Initiative', 'Status', ...ITEM_COLS];
+      const widths = [22, 30, 10, ...ITEM_WIDTHS];
+      ws.columns = cols.map((h, i) => ({ header: h, key: h, width: widths[i] }));
+      styleHeader(ws, ws.getRow(1));
       for (const [, { rail_name, company_name, closed, items }] of byRail) {
-        const sheetName = `${closed ? '[A] ' : ''}${company_name} — ${rail_name}`.slice(0, 31);
-        const ws = wb.addWorksheet(sheetName);
-        ws.columns = ITEM_COLS.map((h, i) => ({ header: h, key: h, width: ITEM_WIDTHS[i] }));
-        styleHeader(ws, ws.getRow(1));
-        if (closed) {
-          ws.getRow(1).eachCell(cell => {
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF92400E' } };
-          });
+        for (const item of items) {
+          const row = ws.addRow([
+            company_name,
+            rail_name,
+            closed ? 'Archived' : 'Active',
+            item.priority,
+            item.action,
+            item.owner,
+            item.status,
+            fmtDate(item.due_date),
+            fmtDate(item.last_update),
+            item.rail_name,
+            item.company_name,
+            item.notes,
+          ]);
+          if (closed) {
+            row.eachCell(cell => {
+              cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF9C3' } };
+            });
+          } else if (item.due_date && item.status !== 'Closed' && new Date(item.due_date) < new Date(new Date().toDateString())) {
+            row.eachCell(cell => {
+              cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF2F2' } };
+            });
+          }
         }
-        itemRows(ws, items);
       }
+      ws.addRow([]);
+      ws.addRow([`Generated ${generatedAt} — RAIL Tracker`]);
       break;
     }
     case 'company-initiatives': {
