@@ -18,7 +18,7 @@ interface OwnerRow {
   p3: number;
   open: number;
   closed: number;
-  initiatives: string[];
+  initiativesByCompany: Map<string, string[]>;
 }
 
 function formatDate(iso: string | null) {
@@ -62,7 +62,7 @@ export default async function RollupPage() {
         p1: 0, p2: 0, p3: 0,
         open: 0,
         closed: 0,
-        initiatives: [],
+        initiativesByCompany: new Map(),
       });
     }
     const row = ownerMap.get(key)!;
@@ -84,8 +84,11 @@ export default async function RollupPage() {
 
     const railInfo = railMap.get(item.rail_id);
     if (railInfo) {
-      const label = `${railInfo.company} — ${railInfo.name}`;
-      if (!row.initiatives.includes(label)) row.initiatives.push(label);
+      if (!row.initiativesByCompany.has(railInfo.company)) {
+        row.initiativesByCompany.set(railInfo.company, []);
+      }
+      const rails = row.initiativesByCompany.get(railInfo.company)!;
+      if (!rails.includes(railInfo.name)) rails.push(railInfo.name);
     }
   }
 
@@ -151,7 +154,15 @@ export default async function RollupPage() {
                     <td className="px-3 py-2 text-center text-xs font-semibold text-zinc-700">{row.open}</td>
                     <td className="px-3 py-2 text-center text-xs text-zinc-400">{row.closed || '—'}</td>
                     <td className="px-3 py-2 text-xs text-zinc-500 max-w-xs">
-                      {row.initiatives.join(', ')}
+                      <div className="flex flex-col gap-1">
+                        {Array.from(row.initiativesByCompany.entries()).map(([company, rails]) => (
+                          <div key={company}>
+                            <span className="font-bold text-zinc-700">{company}</span>
+                            {' — '}
+                            {rails.join(', ')}
+                          </div>
+                        ))}
+                      </div>
                     </td>
                   </tr>
                 ))}
