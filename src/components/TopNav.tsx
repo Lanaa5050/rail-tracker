@@ -17,7 +17,7 @@ const LINKS: NavLink[] = [
 
 export default function TopNav({ activePath }: { activePath: string }) {
   return (
-    <nav className="bg-white border-b border-zinc-200 px-4 sm:px-6 flex items-center gap-1 h-11">
+    <nav className="sticky top-0 z-10 bg-white border-b border-zinc-200 px-4 sm:px-6 flex items-center gap-1 h-11">
       <span className="text-sm font-bold text-zinc-800 mr-4">RAIL Tracker</span>
       {LINKS.map(link => {
         const active = activePath === link.href;
