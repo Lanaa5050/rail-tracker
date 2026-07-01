@@ -153,8 +153,8 @@ export default async function RollupPage() {
                     <td className="px-3 py-2 text-center text-xs text-zinc-600">{row.p3 || '—'}</td>
                     <td className="px-3 py-2 text-center text-xs font-semibold text-zinc-700">{row.open}</td>
                     <td className="px-3 py-2 text-center text-xs text-zinc-400">{row.closed || '—'}</td>
-                    <td className="px-3 py-2 text-xs text-zinc-500 max-w-xs">
-                      <div className="flex flex-col gap-1">
+                    <td className="px-3 py-2 text-xs text-zinc-500 whitespace-nowrap">
+                      <div className="flex flex-col gap-0.5">
                         {Array.from(row.initiativesByCompany.entries()).map(([company, rails]) => (
                           <div key={company}>
                             <span className="font-bold text-zinc-700">{company}</span>
