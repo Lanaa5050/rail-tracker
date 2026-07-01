@@ -67,9 +67,9 @@ export default function RailPageClient({
   };
 
   return (
-    <div className="min-h-full bg-zinc-50">
-      {/* Header — sticky so it stays put while the table scrolls horizontally */}
-      <div className="sticky top-0 z-10 bg-white border-b border-zinc-200 w-full">
+    <div className="h-full flex flex-col bg-zinc-50">
+      {/* Header — shrink-0 keeps it outside any scroll container */}
+      <div className="shrink-0 bg-white border-b border-zinc-200 w-full">
         {/* Row 1: company + initiative title, full width */}
         <div className="px-3 sm:px-6 pt-3 pb-1 min-w-0 overflow-hidden">
           <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-0.5 truncate">
@@ -147,22 +147,25 @@ export default function RailPageClient({
         </div>
       </div>
 
-      {/* Closed banner */}
-      {isClosed && (
-        <div className="mx-4 sm:mx-6 mt-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-center gap-3">
-          <span className="text-amber-600 font-semibold text-sm">Archived RAIL</span>
-          <span className="text-amber-500 text-sm">This RAIL is closed. All data is preserved in read-only state.</span>
-        </div>
-      )}
+      {/* Scrollable content — flex-1 fills remaining height, overflow-auto handles both axes */}
+      <div className="flex-1 overflow-auto">
+        {/* Closed banner */}
+        {isClosed && (
+          <div className="mx-4 sm:mx-6 mt-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex items-center gap-3">
+            <span className="text-amber-600 font-semibold text-sm">Archived RAIL</span>
+            <span className="text-amber-500 text-sm">This RAIL is closed. All data is preserved in read-only state.</span>
+          </div>
+        )}
 
-      {/* Table */}
-      <div className="px-4 sm:px-6 py-4">
-        <RailTable
-          railId={railId}
-          initialItems={initialItems}
-          customColumns={visibleColumns}
-          initialCustomValues={initialCustomValues}
-        />
+        {/* Table */}
+        <div className="px-4 sm:px-6 py-4">
+          <RailTable
+            railId={railId}
+            initialItems={initialItems}
+            customColumns={visibleColumns}
+            initialCustomValues={initialCustomValues}
+          />
+        </div>
       </div>
     </div>
   );

@@ -42,7 +42,7 @@ export default async function RailLayout({
     <SidebarProvider>
       <div className="flex h-screen overflow-hidden">
         <RailSidebar companies={companies} currentRailId={railId} />
-        <main className="flex-1 overflow-y-auto min-w-0">
+        <main className="flex-1 min-w-0 min-h-0 flex flex-col">
           {children}
         </main>
       </div>
